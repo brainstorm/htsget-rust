@@ -1,0 +1,8 @@
+[package]
+name = "htsget-rust"
+version = "0.0.1"
+authors = ["Roman Valls Guimera <brainstorm@nopcode.org>"]
+edition = "2018"
+
+[dependencies]
+rust-htslib = "0.22.0"

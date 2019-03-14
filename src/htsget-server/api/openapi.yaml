@@ -1,0 +1,324 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: security-notification@ga4gh.org
+    name: GA4GH
+  description: This data retrieval API bridges from existing genomics bulk data transfers to a client/server model
+  license:
+    name: GPLv3
+  title: htsget
+  version: 1.1.1
+servers:
+- description: htsget genomics api
+  url: https://virtserver.swaggerhub.com/brainkod/htsget/1.1.1
+paths:
+  /reads/{id}:
+    get:
+      description: |
+        Searches a pre-indexed object id.
+      operationId: searchReadId
+      parameters:
+      - description: identifier of the read object
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: File format, BAM (default), CRAM.
+        example: BAM
+        explode: true
+        in: query
+        name: format
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: VReference sequence name
+        example: chr1
+        explode: true
+        in: query
+        name: referenceName
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: The start position of the range on the reference, 0-based, inclusive.
+        example: "12312"
+        explode: true
+        in: query
+        name: start
+        required: false
+        schema:
+          format: int64
+          minimum: 0
+          type: integer
+        style: form
+      - description: The end position of the range on the reference, 0-based exclusive.
+        example: "99999"
+        explode: true
+        in: query
+        name: end
+        required: false
+        schema:
+          format: int64
+          minimum: 0
+          type: integer
+        style: form
+      - description: A list of fields to include, such as QNAME, FLAG, RNAME, etc...
+        example: fields=QNAME,RNAME
+        explode: true
+        in: query
+        name: fields
+        required: false
+        schema:
+          enum:
+          - QNAME
+          - FLAG
+          - RNAME
+          - POS
+          - MAPQ
+          - CIGAR
+          - RNEXT
+          - PNEXT
+          - TLEN
+          - SEQ
+          - QUAL
+          type: string
+        style: form
+      - description: A comma separated list of tags to include, by default all.
+        example: cancer,melanoma
+        explode: true
+        in: query
+        name: tags
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: A comma separated list of tags to exclude, default none.
+        example: normal,healthy
+        explode: true
+        in: query
+        name: notags
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/readIdResponse'
+          description: results matching criteria
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponses'
+          description: something went wrong
+        500:
+          description: Unexpected error
+      security:
+      - htsget_auth:
+        - read:genomic_reads
+      summary: Gets the reads from a pre-indexed id
+  /variants/{id}:
+    get:
+      description: |
+        Searches a pre-indexed object id.
+      operationId: searchVariantId
+      parameters:
+      - description: identifier of the variant object
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: File format, VCF (default), BCF.
+        example: VCF
+        explode: true
+        in: query
+        name: format
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: VReference sequence name
+        example: chr1
+        explode: true
+        in: query
+        name: referenceName
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: The start position of the range on the reference, 0-based, inclusive.
+        example: "12312"
+        explode: true
+        in: query
+        name: start
+        required: false
+        schema:
+          format: int64
+          minimum: 0
+          type: integer
+        style: form
+      - description: The end position of the range on the reference, 0-based exclusive.
+        example: "99999"
+        explode: true
+        in: query
+        name: end
+        required: false
+        schema:
+          format: int64
+          minimum: 0
+          type: integer
+        style: form
+      - description: A list of variant fields to include, such as INFO, SAMPLE, FORMAT, etc.
+        example: fields=INFO,SAMPLE
+        explode: true
+        in: query
+        name: fields
+        required: false
+        schema:
+          enum:
+          - INFO
+          - SAMPLE
+          - FILTER
+          - FORMAT
+          - ALT
+          type: string
+        style: form
+      - description: A comma separated list of tags to include, by default all.
+        example: cancer,melanoma
+        explode: true
+        in: query
+        name: tags
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: A comma separated list of tags to exclude, default none.
+        example: normal,skin
+        explode: true
+        in: query
+        name: notags
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/variantIdResponse'
+          description: results matching criteria
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponses'
+          description: something went wrong
+        500:
+          description: Unexpected error
+      security:
+      - htsget_auth:
+        - read:genomic_variants
+      summary: Gets the variants from a pre-indexed id
+components:
+  schemas:
+    readIdResponse:
+      $ref: '#/components/schemas/htsgetResponse'
+    variantIdResponse:
+      $ref: '#/components/schemas/htsgetResponse'
+    htsgetResponse:
+      example:
+        htsget:
+          urls:
+          - url: data:application/vnd.ga4gh.bam;base64,QkFNAQ==
+          - url: data:application/vnd.ga4gh.vcf;base64,QkFNAQ==
+            headers:
+              Authorization: Bearer xxxxx
+              Range: bytes=65536-1003750
+          format: BAM
+          md5: 8a6049fad4943ff4c6de5c22df97d001
+      properties:
+        htsget:
+          $ref: '#/components/schemas/htsgetResponse_htsget'
+      type: object
+    htsgetUrlsHeaders:
+      example:
+      - url: data:application/vnd.ga4gh.bam;base64,QkFNAQ==
+      - url: data:application/vnd.ga4gh.vcf;base64,QkFNAQ==
+        headers:
+          Authorization: Bearer xxxxx
+          Range: bytes=65536-1003750
+      items:
+        $ref: '#/components/schemas/urlsItems'
+      type: array
+    urlsItems:
+      properties:
+        url:
+          type: string
+        headers:
+          type: object
+      required:
+      - url
+      type: object
+    errorResponses:
+      oneOf:
+      - $ref: '#/components/schemas/UnsupportedFormat'
+      - $ref: '#/components/schemas/InvalidInput'
+      - $ref: '#/components/schemas/InvalidRange'
+    UnsupportedFormat:
+      description: The requested file format is not supported by the server
+    InvalidInput:
+      description: The request parameters do not adhere to the specification
+    InvalidRange:
+      description: The requested range cannot be satisfied
+    htsgetResponse_htsget:
+      example:
+        urls:
+        - url: data:application/vnd.ga4gh.bam;base64,QkFNAQ==
+        - url: data:application/vnd.ga4gh.vcf;base64,QkFNAQ==
+          headers:
+            Authorization: Bearer xxxxx
+            Range: bytes=65536-1003750
+        format: BAM
+        md5: 8a6049fad4943ff4c6de5c22df97d001
+      properties:
+        format:
+          example: BAM
+          type: string
+        urls:
+          example:
+          - url: data:application/vnd.ga4gh.bam;base64,QkFNAQ==
+          - url: data:application/vnd.ga4gh.vcf;base64,QkFNAQ==
+            headers:
+              Authorization: Bearer xxxxx
+              Range: bytes=65536-1003750
+          items:
+            $ref: '#/components/schemas/urlsItems'
+          type: array
+        md5:
+          example: 8a6049fad4943ff4c6de5c22df97d001
+          type: string
+      required:
+      - format
+      - urls
+  securitySchemes:
+    htsget_auth:
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/api/oauth/dialog
+          scopes:
+            read:genomic_reads: read access to genomic reads
+            read:genomic_variants: read access to genomic variants
+          tokenUrl: https://example.com/api/oauth/token
+      type: oauth2
+
